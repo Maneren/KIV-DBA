@@ -45,6 +45,8 @@ BEGIN
 
   RETURN v_radek;
 END;
+/
+show errors;
 
 -- Funkce pro výpočet celkového herního času hráče v jedné hře
 CREATE OR REPLACE FUNCTION herni_cas(
@@ -79,6 +81,8 @@ BEGIN
 
   RETURN v_cas;
 END;
+/
+show errors;
 
 -- Funkce vrací TRUE, pokud už není možné udělat další tah
 CREATE OR REPLACE FUNCTION remiza(
@@ -103,6 +107,8 @@ BEGIN
 
   RETURN v_pocet_tahu >= (v_sirka * v_vyska);
 END;
+/
+show errors;
 
 -- Funkce vrací TRUE, pokud poslední tah právě hrajícího hráče vytvořil výhru
 CREATE OR REPLACE FUNCTION vyhra(
@@ -180,6 +186,9 @@ BEGIN
     WHEN no_data_found THEN
       RETURN FALSE;
 END;
+/
+show errors;
+
 
 -- Funkce vrací kód chyby parametrů při zakládání hry
 CREATE OR REPLACE FUNCTION spatny_parametr(
@@ -250,3 +259,5 @@ BEGIN
 
   RETURN 0;
 END;
+/
+show errors;

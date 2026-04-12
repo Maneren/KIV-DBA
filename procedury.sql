@@ -38,6 +38,7 @@ BEGIN
   END IF;
 END;
 /
+show errors;
 
 -- Procedura zabrání neplatnému tahu
 CREATE OR REPLACE PROCEDURE zabran_tahu(
@@ -136,6 +137,7 @@ EXCEPTION
     raise_application_error(-21200, 'Zadaná hra neexistuje');
 END;
 /
+show errors;
 
 -- Procedura spočítá herní čas po dokončení hry
 CREATE OR REPLACE PROCEDURE konec_hry(
@@ -161,6 +163,7 @@ EXCEPTION
     raise_application_error(-21300, 'Zadaná hra neexistuje');
 END;
 /
+show errors;
 
 -- Procedura aktualizuje statistiky hráčů po dokončení hry
 CREATE OR REPLACE PROCEDURE statistiky(
@@ -211,3 +214,4 @@ EXCEPTION
     raise_application_error(-21400, 'Zadaná hra neexistuje');
 END;
 /
+show errors;
