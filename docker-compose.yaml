@@ -1,0 +1,19 @@
+---
+services:
+  oracle:
+    image: docker.io/gvenzl/oracle-free:slim-faststart
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: 1234
+      ORACLE_DATABASE: PISKVORKY
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+      start_interval: 5s
+    volumes:
+      - ./setup.sql:/container-entrypoint-initdb.d/setup.sql:ro
+      - .:/opt/oracle/app:ro
