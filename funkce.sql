@@ -34,8 +34,8 @@ BEGIN
         AND t.pozice_x = i
         AND t.pozice_y = p_cislo_radku;
       EXCEPTION
-      WHEN no_data_found THEN
-      v_znak := '.';
+        WHEN no_data_found THEN
+          v_znak := '.';
     END;
 
     v_radek := v_radek || v_znak;
@@ -145,7 +145,8 @@ BEGIN
     t.pozice_y
   INTO v_id_hrace, v_x, v_y
   FROM tah t
-  WHERE t.id_hry = p_id_hry
+  WHERE
+    t.id_hry = p_id_hry
     AND t.poradi_tahu = (
       SELECT max(t2.poradi_tahu)
       FROM tah t2
@@ -175,9 +176,9 @@ BEGIN
 
   RETURN FALSE;
 
-EXCEPTION
-WHEN no_data_found THEN
-  RETURN FALSE;
+  EXCEPTION
+    WHEN no_data_found THEN
+      RETURN FALSE;
 END;
 
 -- Funkce vrací kód chyby parametrů při zakládání hry
