@@ -179,3 +179,73 @@ EXCEPTION
 WHEN no_data_found THEN
   RETURN FALSE;
 END;
+
+-- Funkce vrací kód chyby parametrů při zakládání hry
+CREATE OR REPLACE FUNCTION spatny_parametr(
+  p_pocet_radku NUMBER,
+  p_pocet_sloupcu NUMBER,
+  p_delka_vitezne_rady NUMBER
+) RETURN NUMBER
+IS
+  v_min_radku NUMBER;
+  v_max_radku NUMBER;
+  v_min_sloupcu NUMBER;
+  v_max_sloupcu NUMBER;
+  v_min_delky NUMBER;
+  v_max_delky NUMBER;
+BEGIN
+  SELECT
+    o.minimalni,
+    o.maximalni
+  INTO v_min_sloupcu, v_max_sloupcu
+  FROM omezeni o
+  WHERE o.nazev = 'šířka';
+
+  SELECT
+    o.minimalni,
+    o.maximalni
+  INTO v_min_radku, v_max_radku
+  FROM omezeni o
+  WHERE o.nazev = 'výška';
+
+  SELECT
+    o.minimalni,
+    o.maximalni
+  INTO v_min_delky, v_max_delky
+  FROM omezeni o
+  WHERE o.nazev = 'délka';
+
+  IF p_pocet_radku < v_min_radku THEN
+    RETURN 1;
+  END IF;
+
+  IF p_pocet_radku > v_max_radku THEN
+    RETURN 2;
+  END IF;
+
+  IF p_pocet_sloupcu < v_min_sloupcu THEN
+    RETURN 3;
+  END IF;
+
+  IF p_pocet_sloupcu > v_max_sloupcu THEN
+    RETURN 4;
+  END IF;
+
+  IF p_delka_vitezne_rady < v_min_delky THEN
+    RETURN 5;
+  END IF;
+
+  IF p_delka_vitezne_rady > v_max_delky THEN
+    RETURN 6;
+  END IF;
+
+  IF p_delka_vitezne_rady > p_pocet_sloupcu THEN
+    RETURN 7;
+  END IF;
+
+  IF p_delka_vitezne_rady > p_pocet_radku THEN
+    RETURN 8;
+  END IF;
+
+  RETURN 0;
+END;
