@@ -23,8 +23,12 @@ CREATE TABLE hrac (
   prohry_druhy NUMBER DEFAULT 0 NOT NULL,
   remizy_druhy NUMBER DEFAULT 0 NOT NULL,
   CONSTRAINT chk_statistiky_nezaporne CHECK (
-    vyhry_zacinajici >= 0 AND prohry_zacinajici >= 0 AND remizy_zacinajici >= 0
-    AND vyhry_druhy >= 0 AND prohry_druhy >= 0 AND remizy_druhy >= 0
+    vyhry_zacinajici >= 0
+    AND prohry_zacinajici >= 0
+    AND remizy_zacinajici >= 0
+    AND vyhry_druhy >= 0
+    AND prohry_druhy >= 0
+    AND remizy_druhy >= 0
   )
 );
 
