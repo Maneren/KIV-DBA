@@ -1,9 +1,13 @@
 -- zobrazení papírů všech her
 CREATE OR REPLACE VIEW papir AS
-WITH r AS (
+WITH radky AS (
   SELECT LEVEL AS cislo_radku
   FROM dual
-  CONNECT BY LEVEL <= (SELECT max(vyska_papiru) FROM hra)
+  CONNECT BY LEVEL <= (
+    SELECT o.maximalni
+    FROM omezeni o
+    WHERE o.nazev = 'výška'
+  )
 )
 
 SELECT
@@ -11,9 +15,29 @@ SELECT
   r.cislo_radku,
   radek_papiru(h.id_hry, r.cislo_radku) AS radek
 FROM hra h
-CROSS JOIN r
-WHERE r.cislo_radku <= h.vyska_papiru
+INNER JOIN radky r ON (h.vyska_papiru >= r.cislo_radku)
 ORDER BY h.id_hry, r.cislo_radku;
+
+-- CREATE OR REPLACE VIEW papir AS
+-- SELECT
+--   h.id_hry,
+--   r.cislo_radku,
+--   radek_papiru(h.id_hry, r.cislo_radku) AS radek
+-- FROM hra h
+-- CROSS APPLY (
+--   SELECT LEVEL AS cislo_radku
+--   FROM dual
+--   CONNECT BY LEVEL <= h.vyska_papiru
+-- ) r
+-- ORDER BY h.id_hry, r.cislo_radku;
+
+-- CREATE OR REPLACE VIEW papir AS
+-- SELECT
+--   h.id_hry,
+--   gs.column_value AS cislo_radku,
+--   radek_papiru(h.id_hry, gs.column_value) AS radek
+-- FROM hra h
+-- CROSS APPLY GENERATE_SERIES(1, h.vyska_papiru) gs;
 
 -- zobrazení her, které skončily výhrou začínajícího hráče
 CREATE OR REPLACE VIEW vyhry_zacinajici AS
