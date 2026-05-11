@@ -10,7 +10,6 @@ IS
   v_zacin_znak CHAR(1);
   v_druhy_znak CHAR(1);
 BEGIN
-  -- Získání informací o hře
   SELECT
     sirka_papiru,
     zacin_hrac_znak,
@@ -19,7 +18,7 @@ BEGIN
   FROM hra
   WHERE id_hry = p_id_hry;
 
-  FOR i IN 1..v_sirka LOOP
+  FOR x IN 1..v_sirka LOOP
     BEGIN
       SELECT
         CASE
@@ -31,7 +30,7 @@ BEGIN
       INNER JOIN hra h ON t.id_hry = h.id_hry
       WHERE
         t.id_hry = p_id_hry
-        AND t.pozice_x = i
+        AND t.pozice_x = x
         AND t.pozice_y = p_cislo_radku;
       EXCEPTION
         WHEN no_data_found THEN
@@ -40,13 +39,12 @@ BEGIN
 
     v_radek := v_radek || v_znak;
 
-    IF i < v_sirka THEN v_radek := v_radek || ' '; END IF;
+    IF x < v_sirka THEN v_radek := v_radek || ' '; END IF;
   END LOOP;
 
   RETURN v_radek;
 END;
 /
-show errors;
 
 -- Funkce pro výpočet celkového herního času hráče v jedné hře
 CREATE OR REPLACE FUNCTION herni_cas(
@@ -54,61 +52,48 @@ CREATE OR REPLACE FUNCTION herni_cas(
   p_id_hrace NUMBER
 ) RETURN NUMBER
 IS
-  v_cas NUMBER := 0;
+  v_herni_cas NUMBER;
 BEGIN
   SELECT
     coalesce(
       sum(
-        (cast(x.casova_znacka AS DATE) - cast(x.predchozi_cas AS DATE)) * 86400
+        (cast(tah.casova_znacka AS DATE) - cast(pred.casova_znacka AS DATE))
+        * 86400
       ),
       0
     )
-  INTO v_cas
-  FROM (
-    SELECT
-      t.id_hrace,
-      t.casova_znacka,
-      lag(t.id_hrace) OVER (ORDER BY t.poradi_tahu) AS predchozi_hrac,
-      lag(t.casova_znacka) OVER (ORDER BY t.poradi_tahu) AS predchozi_cas
-    FROM tah t
-    WHERE t.id_hry = p_id_hry
-  ) x
+  INTO v_herni_cas
+  FROM tah
+  INNER JOIN tah pred
+    ON
+      tah.id_hry = pred.id_hry AND pred.poradi_tahu = tah.poradi_tahu - 1
   WHERE
-    x.id_hrace = p_id_hrace
-    AND x.predchozi_cas IS NOT NULL
-    AND x.predchozi_hrac IS NOT NULL
-    AND x.predchozi_hrac != p_id_hrace;
+    tah.id_hry = p_id_hry
+    AND tah.id_hrace = p_id_hrace
+    AND pred.id_hrace IS NOT NULL
+    AND pred.id_hrace != p_id_hrace;
 
-  RETURN v_cas;
+  RETURN v_herni_cas;
 END;
 /
-show errors;
 
 -- Funkce vrací TRUE, pokud už není možné udělat další tah
 CREATE OR REPLACE FUNCTION remiza(
   p_id_hry NUMBER
 ) RETURN BOOLEAN
 IS
-  v_sirka NUMBER;
-  v_vyska NUMBER;
-  v_pocet_tahu NUMBER;
+  v_remiza BOOLEAN;
 BEGIN
-  SELECT
-    h.sirka_papiru,
-    h.vyska_papiru
-  INTO v_sirka, v_vyska
+  SELECT count(*) >= h.sirka_papiru * h.vyska_papiru
+  INTO v_remiza
   FROM hra h
-  WHERE h.id_hry = p_id_hry;
+  INNER JOIN tah t ON h.id_hry = t.id_hry
+  WHERE h.id_hry = p_id_hry
+  GROUP BY h.id_hry;
 
-  SELECT count(*)
-  INTO v_pocet_tahu
-  FROM tah t
-  WHERE t.id_hry = p_id_hry;
-
-  RETURN v_pocet_tahu >= (v_sirka * v_vyska);
+  RETURN v_remiza;
 END;
 /
-show errors;
 
 -- Funkce vrací TRUE, pokud poslední tah právě hrajícího hráče vytvořil výhru
 CREATE OR REPLACE FUNCTION vyhra(
@@ -146,39 +131,49 @@ IS
   END;
 BEGIN
   SELECT
-    t.id_hrace,
-    t.pozice_x,
-    t.pozice_y
+    id_hrace,
+    pozice_x,
+    pozice_y
   INTO v_id_hrace, v_x, v_y
-  FROM tah t
-  WHERE
-    t.id_hry = p_id_hry
-    AND t.poradi_tahu = (
-      SELECT max(t2.poradi_tahu)
-      FROM tah t2
-      WHERE t2.id_hry = p_id_hry
-    );
+  FROM (
+    SELECT * FROM tah
+    WHERE id_hry = p_id_hry
+    ORDER BY poradi_tahu DESC
+  )
+  WHERE ROWNUM = 1;
 
   SELECT h.delka_vitezne_rady
   INTO v_delka
   FROM hra h
   WHERE h.id_hry = p_id_hry;
 
-  IF 1 + pocet_ve_smeru(1, 0) + pocet_ve_smeru(-1, 0) >= v_delka THEN
-    RETURN TRUE;
-  END IF;
-
-  IF 1 + pocet_ve_smeru(0, 1) + pocet_ve_smeru(0, -1) >= v_delka THEN
-    RETURN TRUE;
-  END IF;
-
-  IF 1 + pocet_ve_smeru(1, 1) + pocet_ve_smeru(-1, -1) >= v_delka THEN
-    RETURN TRUE;
-  END IF;
-
-  IF 1 + pocet_ve_smeru(1, -1) + pocet_ve_smeru(-1, 1) >= v_delka THEN
-    RETURN TRUE;
-  END IF;
+  FOR d IN (
+    SELECT
+      1 AS dx,
+      0 AS dy
+    FROM dual
+    UNION ALL
+    SELECT
+      0 AS dx,
+      1 AS dy
+    FROM dual
+    UNION ALL
+    SELECT
+      1 AS dx,
+      1 AS dy
+    FROM dual
+    UNION ALL
+    SELECT
+      1 AS dx,
+      -1 AS dy
+    FROM dual
+  ) LOOP
+    IF 1
+    + pocet_ve_smeru(d.dx, d.dy)
+    + pocet_ve_smeru(-d.dx, -d.dy) >= v_delka THEN
+      RETURN TRUE;
+    END IF;
+  END LOOP;
 
   RETURN FALSE;
 
@@ -187,8 +182,6 @@ BEGIN
       RETURN FALSE;
 END;
 /
-show errors;
-
 
 -- Funkce vrací kód chyby parametrů při zakládání hry
 CREATE OR REPLACE FUNCTION spatny_parametr(
@@ -260,4 +253,3 @@ BEGIN
   RETURN 0;
 END;
 /
-show errors;

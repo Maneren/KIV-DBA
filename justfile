@@ -16,4 +16,4 @@ destroy: (run "destrukce.sql")
 setup: (run "setup.sql")
 
 run file:
-    cat < {{ file }} | podman compose exec oracle sqlplus -S oldman/1234@localhost  
+    echo exit | podman compose exec oracle sqlplus -S oldman/1234@localhost @app/{{ file }}
