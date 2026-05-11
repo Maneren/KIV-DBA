@@ -16,25 +16,25 @@ BEGIN
   );
 
   IF v_kod = 1 THEN
-    raise_application_error(-21101, 'Příliš malý počet řádků na papíru');
+    raise_application_error(-20001, 'Příliš malý počet řádků na papíru');
   ELSIF v_kod = 2 THEN
-    raise_application_error(-21102, 'Příliš velký počet řádků na papíru');
+    raise_application_error(-20002, 'Příliš velký počet řádků na papíru');
   ELSIF v_kod = 3 THEN
-    raise_application_error(-21103, 'Příliš malý počet sloupců na papíru');
+    raise_application_error(-20003, 'Příliš malý počet sloupců na papíru');
   ELSIF v_kod = 4 THEN
-    raise_application_error(-21104, 'Příliš velký počet sloupců na papíru');
+    raise_application_error(-20004, 'Příliš velký počet sloupců na papíru');
   ELSIF v_kod = 5 THEN
-    raise_application_error(-21105, 'Příliš malý počet znaků ve vítězné řadě');
+    raise_application_error(-20005, 'Příliš malý počet znaků ve vítězné řadě');
   ELSIF v_kod = 6 THEN
-    raise_application_error(-21106, 'Příliš velký počet znaků ve vítězné řadě');
+    raise_application_error(-20006, 'Příliš velký počet znaků ve vítězné řadě');
   ELSIF v_kod = 7 THEN
-    raise_application_error(-21107, 'Vítězná řada je delší než šířka papíru');
+    raise_application_error(-20007, 'Vítězná řada je delší než šířka papíru');
   ELSIF v_kod = 8 THEN
-    raise_application_error(-21108, 'Vítězná řada je delší než výška papíru');
+    raise_application_error(-20008, 'Vítězná řada je delší než výška papíru');
   END IF;
 
   IF p_id_zacin_hrace = p_id_druheho_hrace THEN
-    raise_application_error(-21109, 'Hru musí hrát dva různí hráči');
+    raise_application_error(-20009, 'Hru musí hrát dva různí hráči');
   END IF;
 END;
 /
@@ -72,15 +72,15 @@ BEGIN
   WHERE h.id_hry = p_id_hry;
 
   IF v_stav != 'rozehraná' THEN
-    raise_application_error(-21201, 'Nelze provést tah ve hře, která již skončila');
+    raise_application_error(-20011, 'Nelze provést tah ve hře, která již skončila');
   END IF;
 
   IF p_id_hrace NOT IN (v_id_zacin, v_id_druhy) THEN
-    raise_application_error(-21202, 'Hráč nehraje v dané hře');
+    raise_application_error(-20012, 'Hráč nehraje v dané hře');
   END IF;
 
   IF p_pozice_x < 1 OR p_pozice_x > v_sirka OR p_pozice_y < 1 OR p_pozice_y > v_vyska THEN
-    raise_application_error(-21203, 'Tah je mimo papír');
+    raise_application_error(-20013, 'Tah je mimo papír');
   END IF;
 
   SELECT count(*)
@@ -92,7 +92,7 @@ BEGIN
     AND t.pozice_y = p_pozice_y;
 
   IF v_pocet > 0 THEN
-    raise_application_error(-21204, 'Na zadané pozici už je značka');
+    raise_application_error(-20014, 'Na zadané pozici už je značka');
   END IF;
 
   SELECT count(*)
@@ -125,16 +125,16 @@ BEGIN
   END IF;
 
   IF p_id_hrace != v_ocekavany_hrac THEN
-    raise_application_error(-21205, 'Hráči se musí pravidelně střídat po jednom tahu');
+    raise_application_error(-20015, 'Hráči se musí pravidelně střídat po jednom tahu');
   END IF;
 
   IF p_poradi_tahu != v_ocekavane_poradi THEN
-    raise_application_error(-21206, 'Neplatné pořadí tahu');
+    raise_application_error(-20016, 'Neplatné pořadí tahu');
   END IF;
 
 EXCEPTION
   WHEN no_data_found THEN
-    raise_application_error(-21200, 'Zadaná hra neexistuje');
+    raise_application_error(-20010, 'Zadaná hra neexistuje');
 END;
 /
 show errors;
@@ -160,7 +160,7 @@ BEGIN
 
 EXCEPTION
   WHEN no_data_found THEN
-    raise_application_error(-21300, 'Zadaná hra neexistuje');
+    raise_application_error(-20010, 'Zadaná hra neexistuje');
 END;
 /
 show errors;
@@ -211,7 +211,7 @@ BEGIN
 
 EXCEPTION
   WHEN no_data_found THEN
-    raise_application_error(-21400, 'Zadaná hra neexistuje');
+    raise_application_error(-20010, 'Zadaná hra neexistuje');
 END;
 /
 show errors;
