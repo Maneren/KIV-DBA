@@ -67,7 +67,11 @@ SELECT
   hz.jmeno AS jmeno_hrace_ktery_zacikal,
   h.zacin_hrac_znak AS znak_zacin_hrace,
   h.druhy_hrac_znak AS znak_druheho_hrace,
-  (h.cas_zacin_hrace + h.cas_druheho_hrace) AS celkovy_cas_hry
+  (h.cas_zacin_hrace + h.cas_druheho_hrace) AS celkovy_cas_hry,
+  (
+    SELECT count(*) FROM tah t
+    WHERE t.id_hry = h.id_hry
+  ) AS pocet_tahu
 FROM hra h
 INNER JOIN hrac hz ON h.id_zacin_hrace = hz.id_hrace
 INNER JOIN hrac hd ON h.id_druheho_hrace = hd.id_hrace

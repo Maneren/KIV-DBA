@@ -38,7 +38,6 @@ BEGIN
   END IF;
 END;
 /
-show errors;
 
 -- Procedura zabrání neplatnému tahu
 CREATE OR REPLACE PROCEDURE zabran_tahu(
@@ -68,18 +67,23 @@ BEGIN
     s.nazev
   INTO v_sirka, v_vyska, v_id_zacin, v_id_druhy, v_stav
   FROM hra h
-  INNER JOIN stav s ON s.id_stavu = h.id_stavu
+  INNER JOIN stav s ON h.id_stavu = s.id_stavu
   WHERE h.id_hry = p_id_hry;
 
   IF v_stav != 'rozehraná' THEN
-    raise_application_error(-20011, 'Nelze provést tah ve hře, která již skončila');
+    raise_application_error(
+      -20011, 'Nelze provést tah ve hře, která již skončila'
+    );
   END IF;
 
   IF p_id_hrace NOT IN (v_id_zacin, v_id_druhy) THEN
     raise_application_error(-20012, 'Hráč nehraje v dané hře');
   END IF;
 
-  IF p_pozice_x < 1 OR p_pozice_x > v_sirka OR p_pozice_y < 1 OR p_pozice_y > v_vyska THEN
+  IF p_pozice_x < 1
+  OR p_pozice_x > v_sirka
+  OR p_pozice_y < 1
+  OR p_pozice_y > v_vyska THEN
     raise_application_error(-20013, 'Tah je mimo papír');
   END IF;
 
@@ -104,16 +108,16 @@ BEGIN
     v_ocekavany_hrac := v_id_zacin;
     v_ocekavane_poradi := 1;
   ELSE
-    SELECT t.id_hrace, t.poradi_tahu
+    SELECT
+      id_hrace,
+      poradi_tahu
     INTO v_posledni_hrac, v_posledni_poradi
-    FROM tah t
-    WHERE
-      t.id_hry = p_id_hry
-      AND t.poradi_tahu = (
-        SELECT max(t2.poradi_tahu)
-        FROM tah t2
-        WHERE t2.id_hry = p_id_hry
-      );
+    FROM (
+      SELECT * FROM tah
+      WHERE id_hry = p_id_hry
+      ORDER BY poradi_tahu DESC
+    )
+    WHERE ROWNUM = 1;
 
     IF v_posledni_hrac = v_id_zacin THEN
       v_ocekavany_hrac := v_id_druhy;
@@ -125,19 +129,20 @@ BEGIN
   END IF;
 
   IF p_id_hrace != v_ocekavany_hrac THEN
-    raise_application_error(-20015, 'Hráči se musí pravidelně střídat po jednom tahu');
+    raise_application_error(
+      -20015, 'Hráči se musí pravidelně střídat po jednom tahu'
+    );
   END IF;
 
   IF p_poradi_tahu != v_ocekavane_poradi THEN
     raise_application_error(-20016, 'Neplatné pořadí tahu');
   END IF;
 
-EXCEPTION
-  WHEN no_data_found THEN
-    raise_application_error(-20010, 'Zadaná hra neexistuje');
+  EXCEPTION
+    WHEN no_data_found THEN
+      raise_application_error(-20010, 'Zadaná hra neexistuje');
 END;
 /
-show errors;
 
 -- Procedura spočítá herní čas po dokončení hry
 CREATE OR REPLACE PROCEDURE konec_hry(
@@ -147,7 +152,9 @@ IS
   v_id_zacin NUMBER;
   v_id_druhy NUMBER;
 BEGIN
-  SELECT h.id_zacin_hrace, h.id_druheho_hrace
+  SELECT
+    h.id_zacin_hrace,
+    h.id_druheho_hrace
   INTO v_id_zacin, v_id_druhy
   FROM hra h
   WHERE h.id_hry = p_id_hry;
@@ -158,12 +165,11 @@ BEGIN
     h.cas_druheho_hrace = herni_cas(p_id_hry, v_id_druhy)
   WHERE h.id_hry = p_id_hry;
 
-EXCEPTION
-  WHEN no_data_found THEN
-    raise_application_error(-20010, 'Zadaná hra neexistuje');
+  EXCEPTION
+    WHEN no_data_found THEN
+      raise_application_error(-20010, 'Zadaná hra neexistuje');
 END;
 /
-show errors;
 
 -- Procedura aktualizuje statistiky hráčů po dokončení hry
 CREATE OR REPLACE PROCEDURE statistiky(
@@ -180,7 +186,7 @@ BEGIN
     s.nazev
   INTO v_id_zacin, v_id_druhy, v_stav
   FROM hra h
-  INNER JOIN stav s ON s.id_stavu = h.id_stavu
+  INNER JOIN stav s ON h.id_stavu = s.id_stavu
   WHERE h.id_hry = p_id_hry;
 
   IF v_stav = 'vítězství' THEN
@@ -209,9 +215,8 @@ BEGIN
     WHERE id_hrace = v_id_druhy;
   END IF;
 
-EXCEPTION
-  WHEN no_data_found THEN
-    raise_application_error(-20010, 'Zadaná hra neexistuje');
+  EXCEPTION
+    WHEN no_data_found THEN
+      raise_application_error(-20010, 'Zadaná hra neexistuje');
 END;
 /
-show errors;

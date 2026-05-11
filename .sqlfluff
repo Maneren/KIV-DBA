@@ -22,3 +22,9 @@ capitalisation_policy = upper
 
 [sqlfluff:rules:convention.not_equal]
 preferred_not_equal_style = c_style
+
+[sqlfluff:layout:type:colon]
+spacing_after = touch
+
+[sqlfluff:layout:type:colon_delimiter]
+spacing_before = single

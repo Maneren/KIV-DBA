@@ -57,8 +57,13 @@ BEGIN
   SELECT
     coalesce(
       sum(
-        (cast(tah.casova_znacka AS DATE) - cast(pred.casova_znacka AS DATE))
-        * 86400
+        -- timestamp difference -> seconds as float (with milliseconds
+        -- precision)
+        -- ref: https://stackoverflow.com/questions/17413096/
+        -- how-to-find-difference-b-w-timestamp-format-values-in-oracle/17413839
+        extract(
+          DAY FROM (tah.casova_znacka - pred.casova_znacka) * 86400 * 1000
+        ) / 1000
       ),
       0
     )
@@ -82,16 +87,20 @@ CREATE OR REPLACE FUNCTION remiza(
   p_id_hry NUMBER
 ) RETURN BOOLEAN
 IS
-  v_remiza BOOLEAN;
+  v_celkem_policek NUMBER;
+  v_plno NUMBER;
 BEGIN
-  SELECT count(*) >= h.sirka_papiru * h.vyska_papiru
-  INTO v_remiza
+  SELECT h.sirka_papiru * h.vyska_papiru
+  INTO v_celkem_policek
   FROM hra h
-  INNER JOIN tah t ON h.id_hry = t.id_hry
-  WHERE h.id_hry = p_id_hry
-  GROUP BY h.id_hry;
+  WHERE h.id_hry = p_id_hry;
 
-  RETURN v_remiza;
+  SELECT count(*)
+  INTO v_plno
+  FROM tah t
+  WHERE t.id_hry = p_id_hry;
+
+  RETURN v_plno >= v_celkem_policek;
 END;
 /
 
@@ -121,7 +130,8 @@ IS
         t.id_hry = p_id_hry
         AND t.id_hrace = v_id_hrace
         AND t.pozice_x = v_x + p_dx * v_krok
-        AND t.pozice_y = v_y + p_dy * v_krok;
+        AND t.pozice_y = v_y + p_dy * v_krok
+        AND ROWNUM = 1;
 
       EXIT WHEN v_existuje = 0;
       v_krok := v_krok + 1;

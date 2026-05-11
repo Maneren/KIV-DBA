@@ -1,6 +1,11 @@
+CREATE SEQUENCE seq_stav;
+CREATE SEQUENCE seq_hrac;
+CREATE SEQUENCE seq_hra;
+CREATE SEQUENCE seq_tah;
+
 -- Číselník stavů her
 CREATE TABLE stav (
-  id_stavu NUMBER PRIMARY KEY,
+  id_stavu NUMBER DEFAULT seq_stav.NEXTVAL PRIMARY KEY,
   nazev VARCHAR2(50) NOT NULL UNIQUE
 );
 
@@ -14,7 +19,7 @@ CREATE TABLE omezeni (
 
 -- Registrovaní hráči
 CREATE TABLE hrac (
-  id_hrace NUMBER PRIMARY KEY,
+  id_hrace NUMBER DEFAULT seq_hrac.NEXTVAL PRIMARY KEY,
   jmeno VARCHAR2(32) NOT NULL UNIQUE,
   vyhry_zacinajici NUMBER DEFAULT 0 NOT NULL,
   prohry_zacinajici NUMBER DEFAULT 0 NOT NULL,
@@ -34,7 +39,7 @@ CREATE TABLE hrac (
 
 -- Hry
 CREATE TABLE hra (
-  id_hry NUMBER PRIMARY KEY,
+  id_hry NUMBER DEFAULT seq_hra.NEXTVAL PRIMARY KEY,
   sirka_papiru NUMBER NOT NULL,
   vyska_papiru NUMBER NOT NULL,
   delka_vitezne_rady NUMBER NOT NULL,
@@ -66,7 +71,7 @@ CREATE TABLE hra (
 
 -- Tahy ve hrách
 CREATE TABLE tah (
-  id_tahu NUMBER PRIMARY KEY,
+  id_tahu NUMBER DEFAULT seq_tah.NEXTVAL PRIMARY KEY,
   id_hry NUMBER NOT NULL,
   id_hrace NUMBER NOT NULL,
   pozice_x NUMBER NOT NULL,

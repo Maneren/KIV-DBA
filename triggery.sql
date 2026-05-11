@@ -28,60 +28,63 @@ BEGIN
 END;
 /
 
--- Trigger pro aktualizaci stavu hry, časů a statistik po tahu
+
+-- Trigger pro aktualizaci stavu hry, časů a statistik po tahu (compound trigger kvůli čtení z TAH ve vyhra)
 CREATE OR REPLACE TRIGGER trg_tah_ukonceni_hry
-AFTER INSERT ON tah
-FOR EACH ROW
-DECLARE
-  v_id_zacin NUMBER;
-  v_id_stavu_vyhry NUMBER;
-  v_id_stavu_prohry NUMBER;
-  v_id_stavu_remiza NUMBER;
-  v_konec_hry BOOLEAN := FALSE;
+FOR INSERT ON tah
+COMPOUND TRIGGER
+
+  -- key=id_hry, value=id_hrace (last mover in statement)
+  TYPE t_game_set IS TABLE OF PLS_INTEGER INDEX BY PLS_INTEGER;
+  g_games T_GAME_SET;
+
+AFTER EACH ROW IS
 BEGIN
-  SELECT h.id_zacin_hrace
-  INTO v_id_zacin
-  FROM hra h
-  WHERE h.id_hry = :NEW.id_hry;
+g_games (:NEW.id_hry) := :NEW.id_hrace;
+END AFTER EACH ROW;
 
-  IF vyhra(:NEW.id_hry) THEN
-    SELECT s.id_stavu
-    INTO v_id_stavu_vyhry
-    FROM stav s
-    WHERE s.nazev = 'vítězství';
+AFTER STATEMENT IS
+  v_id_zacin hra.id_zacin_hrace%TYPE;
+  v_stav_id  stav.id_stavu%TYPE;
+  k          PLS_INTEGER;
+BEGIN
+  k := g_games.first;
+  WHILE k IS NOT NULL LOOP
+    v_stav_id := NULL;
 
-    SELECT s.id_stavu
-    INTO v_id_stavu_prohry
-    FROM stav s
-    WHERE s.nazev = 'prohra';
+    IF vyhra(k) THEN
+      SELECT h.id_zacin_hrace
+      INTO v_id_zacin
+      FROM hra h
+      WHERE h.id_hry = k;
 
-    IF :NEW.id_hrace = v_id_zacin THEN
-      UPDATE hra
-      SET id_stavu = v_id_stavu_vyhry
-      WHERE id_hry = :NEW.id_hry;
-    ELSE
-      UPDATE hra
-      SET id_stavu = v_id_stavu_prohry
-      WHERE id_hry = :NEW.id_hry;
+      IF g_games(k) = v_id_zacin THEN
+        SELECT s.id_stavu INTO v_stav_id FROM stav s
+        WHERE s.nazev = 'vítězství';
+      ELSE
+        SELECT s.id_stavu INTO v_stav_id FROM stav s
+        WHERE s.nazev = 'prohra';
+      END IF;
+
+    ELSIF remiza(k) THEN
+      SELECT s.id_stavu INTO v_stav_id FROM stav s
+      WHERE s.nazev = 'remíza';
     END IF;
 
-    v_konec_hry := TRUE;
-  ELSIF remiza(:NEW.id_hry) THEN
-    SELECT s.id_stavu
-    INTO v_id_stavu_remiza
-    FROM stav s
-    WHERE s.nazev = 'remíza';
+    IF v_stav_id IS NOT NULL THEN
+      UPDATE hra
+      SET id_stavu = v_stav_id
+      WHERE id_hry = k;
 
-    UPDATE hra
-    SET id_stavu = v_id_stavu_remiza
-    WHERE id_hry = :NEW.id_hry;
+      konec_hry(k);
+      statistiky(k);
+    END IF;
 
-    v_konec_hry := TRUE;
-  END IF;
+    k := g_games.NEXT(k);
+  END LOOP;
 
-  IF v_konec_hry THEN
-    konec_hry(:NEW.id_hry);
-    statistiky(:NEW.id_hry);
-  END IF;
-END;
+  g_games.DELETE;
+END AFTER STATEMENT;
+
+END trg_tah_ukonceni_hry;
 /
