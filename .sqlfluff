@@ -1,5 +1,6 @@
 [sqlfluff]
 dialect = oracle
+exclude_rules = LT08
 
 [sqlfluff:indentation]
 tab_space_size = 2

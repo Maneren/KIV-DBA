@@ -1,43 +1,16 @@
 -- zobrazení papírů všech her
 CREATE OR REPLACE VIEW papir AS
-WITH radky AS (
-  SELECT LEVEL AS cislo_radku
-  FROM dual
-  CONNECT BY LEVEL <= (
-    SELECT o.maximalni
-    FROM omezeni o
-    WHERE o.nazev = 'výška'
-  )
-)
-
 SELECT
   h.id_hry,
   r.cislo_radku,
   radek_papiru(h.id_hry, r.cislo_radku) AS radek
 FROM hra h
-INNER JOIN radky r ON (h.vyska_papiru >= r.cislo_radku)
+CROSS APPLY (
+  SELECT LEVEL AS cislo_radku
+  FROM dual
+  CONNECT BY LEVEL <= h.vyska_papiru
+) r
 ORDER BY h.id_hry, r.cislo_radku;
-
--- CREATE OR REPLACE VIEW papir AS
--- SELECT
---   h.id_hry,
---   r.cislo_radku,
---   radek_papiru(h.id_hry, r.cislo_radku) AS radek
--- FROM hra h
--- CROSS APPLY (
---   SELECT LEVEL AS cislo_radku
---   FROM dual
---   CONNECT BY LEVEL <= h.vyska_papiru
--- ) r
--- ORDER BY h.id_hry, r.cislo_radku;
-
--- CREATE OR REPLACE VIEW papir AS
--- SELECT
---   h.id_hry,
---   gs.column_value AS cislo_radku,
---   radek_papiru(h.id_hry, gs.column_value) AS radek
--- FROM hra h
--- CROSS APPLY GENERATE_SERIES(1, h.vyska_papiru) gs;
 
 -- zobrazení her, které skončily výhrou začínajícího hráče
 CREATE OR REPLACE VIEW vyhry_zacinajici AS
@@ -60,15 +33,13 @@ WITH hra_data AS (
   INNER JOIN stav s ON h.id_stavu = s.id_stavu
   WHERE s.nazev = 'vítězství'
 ),
-
-tahy_data AS (
+pocty_tahu AS (
   SELECT
     id_hry,
     count(*) AS pocet_tahu
   FROM tah
   GROUP BY id_hry
 )
-
 SELECT
   hd.id_hry,
   hd.sirka_papiru,
@@ -79,10 +50,10 @@ SELECT
   hd.jmeno_hrace_ktery_zacikal,
   hd.znak_zacin_hrace,
   hd.znak_druheho_hrace,
-  td.pocet_tahu,
+  pt.pocet_tahu,
   (hd.cas_zacin_hrace + hd.cas_druheho_hrace) AS celkovy_cas_hry
 FROM hra_data hd
-LEFT JOIN tahy_data td ON hd.id_hry = td.id_hry;
+LEFT JOIN pocty_tahu pt ON hd.id_hry = pt.id_hry;
 
 -- zobrazení her, které skončily remízou
 CREATE OR REPLACE VIEW remizy AS
