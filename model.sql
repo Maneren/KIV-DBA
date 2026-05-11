@@ -15,7 +15,7 @@ CREATE TABLE omezeni (
 -- Registrovaní hráči
 CREATE TABLE hrac (
   id_hrace NUMBER PRIMARY KEY,
-  jmeno VARCHAR2(100) NOT NULL UNIQUE,
+  jmeno VARCHAR2(32) NOT NULL UNIQUE,
   vyhry_zacinajici NUMBER DEFAULT 0 NOT NULL,
   prohry_zacinajici NUMBER DEFAULT 0 NOT NULL,
   remizy_zacinajici NUMBER DEFAULT 0 NOT NULL,
