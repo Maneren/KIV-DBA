@@ -53,7 +53,7 @@ SELECT
   pt.pocet_tahu,
   (hd.cas_zacin_hrace + hd.cas_druheho_hrace) AS celkovy_cas_hry
 FROM hra_data hd
-LEFT JOIN pocty_tahu pt ON hd.id_hry = pt.id_hry;
+INNER JOIN pocty_tahu pt ON hd.id_hry = pt.id_hry;
 
 -- zobrazení her, které skončily remízou
 CREATE OR REPLACE VIEW remizy AS
