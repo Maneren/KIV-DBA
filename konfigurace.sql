@@ -1,5 +1,5 @@
 INSERT INTO stav (nazev) VALUES ('rozehraná'),
-('vítězství'),
+('výhra'),
 ('prohra'),
 ('remíza');
 

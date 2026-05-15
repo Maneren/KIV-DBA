@@ -29,7 +29,7 @@ WITH hra_data AS (
   INNER JOIN hrac hz ON h.id_zacin_hrace = hz.id_hrace
   INNER JOIN hrac hd ON h.id_druheho_hrace = hd.id_hrace
   INNER JOIN stav s ON h.id_stavu = s.id_stavu
-  WHERE s.nazev = 'vítězství'
+  WHERE s.nazev = 'výhra'
 ),
 pocty_tahu AS (
   SELECT
