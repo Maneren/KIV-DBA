@@ -47,6 +47,7 @@ BEGIN
   drop_if_exists('DROP SEQUENCE seq_tah');
   drop_if_exists('DROP SEQUENCE seq_hra');
   drop_if_exists('DROP SEQUENCE seq_hrac');
+  drop_if_exists('DROP SEQUENCE seq_omezeni');
   drop_if_exists('DROP SEQUENCE seq_stav');
 END;
 /
