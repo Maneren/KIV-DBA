@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION radek_papiru(
   p_cislo_radku NUMBER
 ) RETURN VARCHAR2
 IS
-  v_radek VARCHAR2(1000) := '';
+  v_radek VARCHAR2(100) := '';
   v_sirka NUMBER;
   v_znak CHAR(1);
   v_zacin_znak CHAR(1);
@@ -34,12 +34,11 @@ BEGIN
         AND t.pozice_y = p_cislo_radku;
       EXCEPTION
         WHEN no_data_found THEN
-          v_znak := '.';
+          v_znak := ' ';
     END;
 
     v_radek := v_radek || v_znak;
 
-    IF x < v_sirka THEN v_radek := v_radek || ' '; END IF;
   END LOOP;
 
   RETURN v_radek;

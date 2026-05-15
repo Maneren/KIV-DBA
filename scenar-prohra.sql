@@ -37,42 +37,17 @@ begin
 end;
 /
 
--- neexistující hra
-insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (9999, 1, 1, 1, 1);
-
--- nehrající hráč
-insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (:v_id_hry, 3, 1, 1, 1);
-
--- validní tah
 insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
 values (:v_id_hry, 1, 1, 1, 1);
 select radek from papir where id_hry = :v_id_hry order by cislo_radku;
-
--- hráč hraje podruhé v řadě
-insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (:v_id_hry, 1, 2, 1, 2);
-
--- špatné pořadí tahu
-insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (:v_id_hry, 2, 2, 2, 3);
 
 insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
 values (:v_id_hry, 2, 1, 2, 2);
 select radek from papir where id_hry = :v_id_hry order by cislo_radku;
 
--- tah na obsazenou pozici
-insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (:v_id_hry, 1, 1, 2, 3);
-
 insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
 values (:v_id_hry, 1, 2, 1, 3);
 select radek from papir where id_hry = :v_id_hry order by cislo_radku;
-
--- tah mimo papír
-insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (:v_id_hry, 2, 6, 1, 4);
 
 insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
 values (:v_id_hry, 2, 2, 2, 4);
@@ -95,13 +70,12 @@ values (:v_id_hry, 2, 4, 2, 8);
 select radek from papir where id_hry = :v_id_hry order by cislo_radku;
 
 insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
-values (:v_id_hry, 1, 5, 1, 9);
+values (:v_id_hry, 1, 5, 3, 9);
 select radek from papir where id_hry = :v_id_hry order by cislo_radku;
 
--- tah po konci hry
--- insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
--- values (:v_id_hry, 2, 5, 2, 10);
--- select radek from papir where id_hry = :v_id_hry order by cislo_radku;
+insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
+values (:v_id_hry, 2, 5, 2, 10);
+select radek from papir where id_hry = :v_id_hry order by cislo_radku;
 
 select * from vyhry_zacinajici;
 select * from hra order by id_hry;

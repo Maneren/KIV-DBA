@@ -1,4 +1,5 @@
 CREATE SEQUENCE seq_stav;
+CREATE SEQUENCE seq_omezeni;
 CREATE SEQUENCE seq_hrac;
 CREATE SEQUENCE seq_hra;
 CREATE SEQUENCE seq_tah;
@@ -11,7 +12,8 @@ CREATE TABLE stav (
 
 -- Parametry systému
 CREATE TABLE omezeni (
-  nazev VARCHAR2(50) PRIMARY KEY,
+  id_omezeni NUMBER DEFAULT seq_omezeni.NEXTVAL PRIMARY KEY,
+  nazev VARCHAR2(50) UNIQUE NOT NULL,
   minimalni NUMBER NOT NULL,
   maximalni NUMBER NOT NULL,
   CONSTRAINT chk_omezeni_rozsah CHECK (minimalni <= maximalni)
