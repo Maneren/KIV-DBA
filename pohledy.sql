@@ -23,8 +23,6 @@ WITH hra_data AS (
     hz.jmeno AS jmeno_zacin_hrace,
     hd.jmeno AS jmeno_druheho_hrace,
     hz.jmeno AS jmeno_hrace_ktery_zacikal,
-    h.zacin_hrac_znak AS znak_zacin_hrace,
-    h.druhy_hrac_znak AS znak_druheho_hrace,
     h.cas_zacin_hrace,
     h.cas_druheho_hrace
   FROM hra h
@@ -48,8 +46,6 @@ SELECT
   hd.jmeno_zacin_hrace,
   hd.jmeno_druheho_hrace,
   hd.jmeno_hrace_ktery_zacikal,
-  hd.znak_zacin_hrace,
-  hd.znak_druheho_hrace,
   pt.pocet_tahu,
   (hd.cas_zacin_hrace + hd.cas_druheho_hrace) AS celkovy_cas_hry
 FROM hra_data hd
@@ -65,8 +61,6 @@ SELECT
   hz.jmeno AS jmeno_zacin_hrace,
   hd.jmeno AS jmeno_druheho_hrace,
   hz.jmeno AS jmeno_hrace_ktery_zacikal,
-  h.zacin_hrac_znak AS znak_zacin_hrace,
-  h.druhy_hrac_znak AS znak_druheho_hrace,
   (h.cas_zacin_hrace + h.cas_druheho_hrace) AS celkovy_cas_hry,
   (
     SELECT count(*) FROM tah t
@@ -88,8 +82,6 @@ SELECT
   hz.jmeno AS jmeno_zacin_hrace,
   hd.jmeno AS jmeno_druheho_hrace,
   hz.jmeno AS jmeno_hrace_ktery_zacikal,
-  h.zacin_hrac_znak AS znak_zacin_hrace,
-  h.druhy_hrac_znak AS znak_druheho_hrace,
   (h.cas_zacin_hrace + h.cas_druheho_hrace) AS celkovy_cas_hry,
   (
     SELECT count(*) FROM tah t

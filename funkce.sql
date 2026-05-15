@@ -10,11 +10,8 @@ IS
   v_zacin_znak CHAR(1);
   v_druhy_znak CHAR(1);
 BEGIN
-  SELECT
-    sirka_papiru,
-    zacin_hrac_znak,
-    druhy_hrac_znak
-  INTO v_sirka, v_zacin_znak, v_druhy_znak
+  SELECT sirka_papiru
+  INTO v_sirka
   FROM hra
   WHERE id_hry = p_id_hry;
 
@@ -22,8 +19,8 @@ BEGIN
     BEGIN
       SELECT
         CASE
-          WHEN t.id_hrace = h.id_zacin_hrace THEN h.zacin_hrac_znak
-          ELSE h.druhy_hrac_znak
+          WHEN t.id_hrace = h.id_zacin_hrace THEN 'X'
+          ELSE 'O'
         END
       INTO v_znak
       FROM tah t

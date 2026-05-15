@@ -47,8 +47,6 @@ CREATE TABLE hra (
   delka_vitezne_rady NUMBER NOT NULL,
   id_zacin_hrace NUMBER NOT NULL,
   id_druheho_hrace NUMBER NOT NULL,
-  zacin_hrac_znak CHAR(1) NOT NULL,
-  druhy_hrac_znak CHAR(1) NOT NULL,
   id_stavu NUMBER NOT NULL,
   cas_zacin_hrace NUMBER DEFAULT 0,
   cas_druheho_hrace NUMBER DEFAULT 0,
@@ -61,7 +59,6 @@ CREATE TABLE hra (
   ),
   CONSTRAINT fk_hra_stav FOREIGN KEY (id_stavu) REFERENCES stav (id_stavu),
   CONSTRAINT chk_hra_rozdilni_hraci CHECK (id_zacin_hrace != id_druheho_hrace),
-  CONSTRAINT chk_hra_rozdilne_znaky CHECK (zacin_hrac_znak != druhy_hrac_znak),
   CONSTRAINT chk_hra_rozmer_papiru CHECK (
     sirka_papiru > 0 AND vyska_papiru > 0
   ),

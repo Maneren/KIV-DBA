@@ -19,8 +19,6 @@ begin
     delka_vitezne_rady,
     id_zacin_hrace,
     id_druheho_hrace,
-    zacin_hrac_znak,
-    druhy_hrac_znak,
     id_stavu
   ) values (
     5,
@@ -28,8 +26,6 @@ begin
     5,
     1,
     2,
-    'X',
-    'O',
     :v_id_stav
   );
 
