@@ -94,7 +94,7 @@ insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
 values (:v_id_hry, 1, 5, 1, 9);
 select radek from papir where id_hry = :v_id_hry order by cislo_radku;
 
--- tah po konci hry
+-- tah po konci hry - konec hry není implementován
 -- insert into tah (id_hry, id_hrace, pozice_x, pozice_y, poradi_tahu)
 -- values (:v_id_hry, 2, 5, 2, 10);
 -- select radek from papir where id_hry = :v_id_hry order by cislo_radku;

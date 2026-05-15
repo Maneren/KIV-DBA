@@ -1,0 +1,168 @@
+\documentclass[11pt,a4paper,parskip=half-]{scrartcl}
+
+%-------------------------
+% Packages
+%-------------------------
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[english,czech]{babel}
+\selectlanguage{czech}
+
+\usepackage{amsmath, amssymb, amsfonts, mathtools}
+\usepackage{amsthm}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% \usepackage{minted}
+
+\usepackage{fnpct}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{enumitem}
+
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\usepackage{authoraftertitle}
+
+\usepackage[breaklinks]{hyperref}
+\usepackage{cleveref}
+
+% make footnotes rules as wide as the text
+\renewcommand{\footnoterule}{%
+  \kern -4pt
+  \hrule width \textwidth height 0.4pt
+  \kern 3.6pt
+}
+
+% define helper command for typesetting inline code
+\newcommand{\code}[1]{\texttt{#1}}
+
+\setstretch{1.125}
+
+%-------------------------
+% Title info
+%-------------------------
+\title{Piškvorky}
+\author{Pavel Altmann}
+
+\hypersetup{
+  pdfborderstyle={/S/U/W 0.5},
+  pdftitle={\MyTitle},
+  pdfauthor={\MyAuthor}
+}
+\urlstyle{same}
+
+\begin{document}
+\maketitle
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Zadání}
+
+Cílem projektu bylo naprogramovat v prostředí systému řízení báze dat Oracle
+databázovou aplikaci pro hru Piškvorky pomocí jazyka PL/SQL.
+
+\section{Popis aplikace}
+
+Aplikace nemá vnější uživatelské rozhraní, je dostupná v prostředí systému
+řízení báze dat prostřednictvím příkazů DML (Data Manipulation Language).
+Základní funkce aplikace jsou:
+
+\begin{itemize}
+  \item Vytvořil profilu hráče vložením záznamu do tabulky \code{HRAC}
+  \item Vytvořit novou hru vložením záznamu do tabulky \code{HRA}
+  \item Zobrazit herní desku čtením z pohledu \code{PAPIR}
+  \item Zahrátí tahu vložením záznamu do tabulky \code{TAH}
+    \begin{itemize}
+      \item Zahrnuje automatickou kontrolu správnosti tahu vzhledem k
+        parametrům hry
+    \end{itemize}
+  \item Zobrazení her, které vyhrál začínající hráč, čtením z pohledu
+    \code{VYHRY\_ZACINAJICI}
+\end{itemize}
+
+\section{Implementace}
+
+\subsection{Datový model}
+
+Datový model je implementován v souboru \code{model.sql} a skládá se z 4
+tabulek: \code{HRAC}, \code{HRA}, \code{TAH}, \code{OMEZENI} a číselníku
+\code{STAV}. Všechny datové tabulky používají umělý primární klíč -- automaticky
+generovanou posloupnost číselných hodnot -- a mají co nejvíce vlastností
+kontrolovaných pomocí integritních omezení.
+
+\paragraph{Tabulka \code{HRAC}.} Obsahuje informace o hráčích registrovaných v
+aplikaci -- jméno a statistiky výher, proher a remíz.
+
+\paragraph{Tabulka \code{HRA}.} Obsahuje informace o všech rozehraných i již
+dohraných hrách -- hrající hráči, parametry hry (rozměry hrací plochy a
+minimální délka výherní řady) a údaje o průběhu hry -- časový záznam a stav hry
+(zda je rozehraná, popř. jak dopadla).
+
+\paragraph{Tabulka \code{TAH}.} Obsahuje záznamy o tazích -- ke které hře
+patří, na jaké pole byl zahrán, kolikátý tah dané hry to byl, časovou značku a
+který hráč jej zahrál.
+
+\paragraph{Tabulka \code{OMEZENI}.} Obsahuje informace o minimálních a
+maximálních povolených hodnotách nastavitelných parametrů hry.
+
+\paragraph{Číselník \code{STAV}.} Obsahuje seznam stavů hry -- rozehraná, výhra,
+prohra, remíza.
+
+\subsection{Pohledy}
+
+V souboru \code{pohledy.sql} jsou implementovány 4 pohledy využívané v aplikaci:
+\code{VYHRY\_ZACINAJICI}, \code{PROHRY\_ZACINAJICI}, \code{REMIZE} a
+\code{PAPIR}.
+
+\paragraph{Pohled \code{PAPIR}.} Zobrazuje řádky herních desek v člověkem
+čitelném formátu vytvořeném funkcí \code{RADEK\_PAPIRU}.
+
+\paragraph{Pohled \code{VYHRY\_ZACINAJICI}.} Zobrazuje seznam her, které
+vyhrál začínající hráč.
+
+\paragraph{Pohled \code{PROHRY\_ZACINAJICI}.} Zobrazuje seznam her, které
+prohrál začínající hráč.
+
+\paragraph{Pohled \code{REMIZY}.} Zobrazuje seznam her, které skončily remízou
+
+\subsection{Funkce}
+
+V aplikaci je využívána pouze jedna funkce \code{RADEK\_PAPIRU} definovaná v
+souboru \code{funkce.sql}.
+
+\paragraph{Funkce \code{RADEK\_PAPIRU}.} Vrací jeden řádek herního desky
+formátovaný jako řetězec znaků \code{X}, \code{O} a mezery.
+
+\subsection{Procedury}
+
+Aplikace využívá pouze jednu proceduru \code{ZABRAN\_TAHU} definovanou v souboru
+\code{procedury.sql}.
+
+\paragraph{Procedura \code{ZABRAN\_TAHU}.} Kontroluje správnost tahu a případně
+vytvoří výjimečnou situaci s odpovídající chybovou hláškou. Jedná se například o
+tah mimo hrací plochu, nebo tah na již obsazené pole.
+
+\subsection{Triggery}
+
+V souboru \code{triggery.sql} je definován jediný použitý trigger
+\code{TRG\_TAH\_VALIDACE}.
+
+\paragraph{Trigger \code{TRG\_TAH\_VALIDACE}.} Před vložením záznamu o tahu do
+tabulky \code{TAH}, zkontroluje jeho správnost pomocí volání procedury
+\code{ZABRAN\_TAHU}.
+
+\section{Scénáře}
+
+Za učelem otestování aplikace byly vytvořeny 3 scénáře. První scénář je
+správný průběh hry s výhrou začínajícího hráče. Druhý scénář je správný průběh
+hry s výhrou druhého hráče. Tyto scénáře kontrolují základní funkcionalitu
+aplikace. Třetí scénář potom testuje veškeré varianty nesprávných tahů a tím
+kontroluje fungování procedury \code{ZABRAN\_TAHU}.
+
+Každý z scénářů je implementován v jednom souboru s předponou \code{scenar\_}.
+
+\end{document}

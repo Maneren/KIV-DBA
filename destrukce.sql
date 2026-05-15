@@ -5,7 +5,12 @@ DECLARE
     EXECUTE IMMEDIATE p_sql;
     EXCEPTION
       WHEN OTHERS THEN
-        IF sqlcode NOT IN (-4043, -4080, -942, -2289) THEN
+        IF sqlcode NOT IN (
+          -4043, -- object does not exist
+          -4080, -- trigger does not exist
+          -942,  -- table or view does not exist
+          -2289  -- sequence does not exist
+        ) THEN
           RAISE;
         END IF;
   END;
@@ -17,23 +22,12 @@ BEGIN
   drop_if_exists('DROP VIEW papir');
 
   -- triggery
-  drop_if_exists('DROP TRIGGER trg_tah_ukonceni_hry');
   drop_if_exists('DROP TRIGGER trg_tah_validace');
-  drop_if_exists('DROP TRIGGER trg_hra_validace');
-  drop_if_exists('DROP TRIGGER trg_tah_validace_pozice');
-  drop_if_exists('DROP TRIGGER trg_hra_validace_parametru');
 
   -- procedury
-  drop_if_exists('DROP PROCEDURE statistiky');
-  drop_if_exists('DROP PROCEDURE konec_hry');
   drop_if_exists('DROP PROCEDURE zabran_tahu');
-  drop_if_exists('DROP PROCEDURE zabran_hre');
 
   -- funkce
-  drop_if_exists('DROP FUNCTION spatny_parametr');
-  drop_if_exists('DROP FUNCTION vyhra');
-  drop_if_exists('DROP FUNCTION remiza');
-  drop_if_exists('DROP FUNCTION herni_cas');
   drop_if_exists('DROP FUNCTION radek_papiru');
 
   -- tabulky
