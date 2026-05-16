@@ -7,8 +7,6 @@ IS
   v_radek VARCHAR2(100) := '';
   v_sirka NUMBER;
   v_znak CHAR(1);
-  v_zacin_znak CHAR(1);
-  v_druhy_znak CHAR(1);
 BEGIN
   SELECT sirka_papiru
   INTO v_sirka

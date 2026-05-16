@@ -6,3 +6,6 @@ INSERT INTO stav (nazev) VALUES ('rozehraná'),
 INSERT INTO omezeni (nazev, minimalni, maximalni) VALUES ('šířka', 5, 20),
 ('výška', 5, 20),
 ('délka', 5, 15);
+
+
+INSERT INTO hrac (jmeno) VALUES ('Petr'), ('Jana'), ('Marek');

@@ -5,8 +5,6 @@ set pagesize 1000
 variable v_id_hry number
 variable v_id_stav number
 
-INSERT INTO hrac (jmeno) VALUES ('Petr'), ('Jana');
-
 begin
   select id_stavu
   into :v_id_stav

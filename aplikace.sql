@@ -352,14 +352,15 @@ INSERT INTO omezeni (nazev, minimalni, maximalni) VALUES ('šířka', 5, 20),
 ('výška', 5, 20),
 ('délka', 5, 15);
 
+
+INSERT INTO hrac (jmeno) VALUES ('Petr'), ('Jana'), ('Marek');
+
 set serveroutput on
 set linesize 220
 set pagesize 1000
 
 variable v_id_hry number
 variable v_id_stav number
-
-INSERT INTO hrac (jmeno) VALUES ('Petr'), ('Jana');
 
 begin
   select id_stavu
